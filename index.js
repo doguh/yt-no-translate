@@ -1,35 +1,40 @@
 (function () {
-  function getTitleElement() {
-    const e = document.getElementById("info-contents");
-    const t = e && e.getElementsByClassName("title")[0];
-    const f = t && t.getElementsByTagName("yt-formatted-string")[0];
-    return f;
-  }
-
+  let titleElement;
   function removeTranslation() {
     if (window.location.pathname !== "/watch") return;
-    const title = getTitleElement();
-    if (title) {
-      const newTitle = document.title.replace(/- YouTube$/, "");
-      const oldTitle = title.getElementsByTagName("span")[0]
-        ? title.getElementsByTagName("span")[0].textContent
-        : title.textContent;
-      title.innerHTML = newTitle;
-      title.setAttribute("title", oldTitle);
-    }
+    const newTitle = document.title.replace(/- YouTube$/, "");
+    const oldTitle = titleElement.getElementsByTagName("span")[0]
+      ? titleElement.getElementsByTagName("span")[0].textContent
+      : titleElement.textContent;
+    titleElement.innerHTML = newTitle;
+    titleElement.setAttribute("title", oldTitle);
   }
 
-  let inited = false;
-  let currentPage = document.title;
-  document.addEventListener("transitionend", (e) => {
-    if (!inited && getTitleElement()) {
-      inited = true;
-      removeTranslation();
-    } else if (e.target.id === "progress" && currentPage !== document.title) {
-      currentPage = document.title;
-      removeTranslation();
+  let ignoreNextMutation = false;
+  const observer = new MutationObserver((mutations) => {
+    if (ignoreNextMutation) {
+      ignoreNextMutation = false;
+      return;
     }
+    ignoreNextMutation = true;
+    removeTranslation();
   });
 
-  removeTranslation();
+  function onTransitionEnd(e) {
+    const infoElement = document.getElementById("info-contents");
+    const titleContainer =
+      infoElement && infoElement.getElementsByClassName("title")[0];
+    titleElement =
+      titleContainer &&
+      titleContainer.getElementsByTagName("yt-formatted-string")[0];
+
+    if (titleElement) {
+      observer.observe(titleElement, {
+        childList: true,
+      });
+      removeTranslation();
+      document.removeEventListener("transitionend", onTransitionEnd);
+    }
+  }
+  document.addEventListener("transitionend", onTransitionEnd);
 })();
