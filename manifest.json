@@ -2,7 +2,7 @@
   "description": "Prevents YouTube from translating video titles",
   "manifest_version": 2,
   "name": "YouTube No Translate",
-  "version": "2.1",
+  "version": "2.2",
   "permissions": [
     "webRequest",
     "webRequestBlocking",
