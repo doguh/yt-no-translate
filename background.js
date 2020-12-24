@@ -1,3 +1,7 @@
+function escapeRegExp(text) {
+  return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
+}
+
 function rewriteXHR(details) {
   console.log("Loading: " + details.url);
 
@@ -24,7 +28,9 @@ function rewriteXHR(details) {
           obj[2].playerResponse.microformat.playerMicroformatRenderer.title
             .simpleText;
         filter.write(
-          encoder.encode(str.replace(new RegExp(shittyTitle, "g"), trueTitle))
+          encoder.encode(
+            str.replace(new RegExp(escapeRegExp(shittyTitle), "g"), trueTitle)
+          )
         );
       } else if (details.type === "main_frame") {
         // if main_frame, we try to find the ytInitialPlayerResponse object and find the original title here, then replace the poorly translated title with it
@@ -41,7 +47,9 @@ function rewriteXHR(details) {
         const shittyTitle =
           data.microformat.playerMicroformatRenderer.title.simpleText;
         filter.write(
-          encoder.encode(str.replace(new RegExp(shittyTitle, "g"), trueTitle))
+          encoder.encode(
+            str.replace(new RegExp(escapeRegExp(shittyTitle), "g"), trueTitle)
+          )
         );
       }
     } catch (err) {
