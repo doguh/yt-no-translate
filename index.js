@@ -10,13 +10,7 @@
     titleElement.setAttribute("title", oldTitle);
   }
 
-  let ignoreNextMutation = false;
   const observer = new MutationObserver((mutations) => {
-    if (ignoreNextMutation) {
-      ignoreNextMutation = false;
-      return;
-    }
-    ignoreNextMutation = true;
     removeTranslation();
   });
 
@@ -29,7 +23,9 @@
       titleContainer.getElementsByTagName("yt-formatted-string")[0];
 
     if (titleElement) {
-      observer.observe(titleElement, {
+      observer.observe(document.querySelector('title'), {
+        subtree: true,
+        characterData: true,
         childList: true,
       });
       removeTranslation();
